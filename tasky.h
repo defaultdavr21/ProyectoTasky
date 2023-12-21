@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QDebug>
 #include <tarea.h>
+#include <QMessageBox>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Tasky; }
@@ -23,10 +25,19 @@ private slots:
 private:
     Ui::Tasky *ui;
     QList <Tarea*> m_tareas;
+    const QString ARCHIVO="tarea.csv";
+    /*archivos CSV
+    -Archivod de texto
+    -Para guar datos por campos
+    -Cada linea es un resgistro
+    -Cada dato se separa por comas,*/
 
     enum Columna{
         TAREA, ASIGNATURA, FECHA, HORA
     };
+    void agregaratarea(Tarea *t);
+    void limpiar();
+    void guardar();
 
 };
 #endif // TASKY_H

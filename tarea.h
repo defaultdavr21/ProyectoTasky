@@ -15,8 +15,8 @@ private:
 public:
     explicit Tarea(QObject *parent = nullptr);
     Tarea(const QString &asignatura, const QDate &fecha, const QTime &hora, const QString &nombre);
-    const QString &asignatura() const;
 
+    const QString &asignatura() const;
     void setAsignatura(const QString &newAsignatura);
     const QDate &fecha() const;
     void setFecha(const QDate &newFecha);

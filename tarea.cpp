@@ -4,6 +4,10 @@ Tarea::Tarea(QObject *parent)
     : QObject{parent} {
 
 }
+const QString &Tarea::asignatura() const{
+
+    return m_asignatura;
+}
 void Tarea::setAsignatura(const QString &newAsignatura){
     m_asignatura = newAsignatura;
 }
@@ -38,3 +42,5 @@ Tarea::Tarea(const QString &asignatura, const QDate &fecha, const QTime &hora, c
     m_nombre(nombre){
 
 }
+
+
