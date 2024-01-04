@@ -21,6 +21,7 @@ public:
 
 private slots:
     void on_bpnagregar_clicked();
+    void on_btnEliminar_clicked();
 
 private:
     Ui::Tasky *ui;
@@ -38,6 +39,8 @@ private:
     void agregaratarea(Tarea *t);
     void limpiar();
     void guardar();
+    void cargar();
+    void actualizarColoresTabla();
 
 };
 #endif // TASKY_H

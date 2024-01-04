@@ -11,6 +11,7 @@ Tasky::Tasky(QWidget *parent)
     QStringList cabecera;
     cabecera << "Tarea"<< "Asignatura"<< "Fecha"<< "Hora";
     ui->tbltareas->setHorizontalHeaderLabels(cabecera);
+    cargar();
 }
 
 Tasky::~Tasky(){
@@ -37,6 +38,7 @@ void Tasky::on_bpnagregar_clicked(){
 
 }
 
+
 void Tasky::agregaratarea(Tarea *t){
 
     //agrego a la lista
@@ -47,7 +49,7 @@ void Tasky::agregaratarea(Tarea *t){
     ui->tbltareas->setItem(fila, ASIGNATURA, new QTableWidgetItem(t->asignatura()));
     ui->tbltareas->setItem(fila, FECHA, new QTableWidgetItem(t->fecha().toString("dd/MM/yyyy")));
     ui->tbltareas->setItem(fila, HORA, new QTableWidgetItem(t->hora().toString("hh:mm")));
-
+    actualizarColoresTabla();
 }
 
 void Tasky::limpiar(){
@@ -66,8 +68,6 @@ void Tasky::limpiar(){
 }
 
 void Tasky::guardar(){
-
-
 
     // Abrir el archivo y guardar
     QFile archivo(ARCHIVO);
@@ -93,8 +93,91 @@ void Tasky::guardar(){
 
     */
 }
+void Tasky::cargar(){
+
+    QFile archivo(ARCHIVO);
+    if (archivo.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream entrada(&archivo);
+
+        while (!entrada.atEnd())
+        {
+            QString linea = entrada.readLine();
+            QStringList datos = linea.split(";");
+            QString nombre = datos[0];
+            QString asignatura = datos[1];
+            QStringList fecha = datos[2].split("/");
+            QDate f(fecha[2].toInt(), fecha[1].toInt(), fecha[0].toInt());
+            QStringList hora = datos[3].split(":");
+            QTime h(hora[0].toInt(), hora[1].toInt());
+
+            //QDate fecha = QDate::fromString(datos[2], "dd/MM/yyyy");
+            //QTime hora = QTime::fromString(datos[3], "hh:mm");
+
+            Tarea *t = new Tarea( asignatura, f, h,nombre);
+            agregaratarea(t);
+        }
+
+        archivo.close();
+    }
+    else
+    {
+        QMessageBox::critical(this, "Cargar tareas", "No se puede leer desde " + ARCHIVO);
+    }
+}
 
 
+void Tasky::actualizarColoresTabla() {
+    QDate hoy = QDate::currentDate();
 
+    for (int fila = 0; fila < ui->tbltareas->rowCount(); ++fila) {
+        QDate fechaTarea = QDate::fromString(ui->tbltareas->item(fila, FECHA)->text(), "dd/MM/yyyy");
+
+        // Calcular la diferencia en días
+        int diasRestantes = hoy.daysTo(fechaTarea);
+
+        // Establecer el color de fondo en función de la diferencia en días
+        if (diasRestantes > 1) {
+            ui->tbltareas->item(fila, TAREA)->setBackground(QBrush(QColor(Qt::green)));
+            ui->tbltareas->item(fila, ASIGNATURA)->setBackground(QBrush(QColor(Qt::green)));
+            ui->tbltareas->item(fila, FECHA)->setBackground(QBrush(QColor(Qt::green)));
+            ui->tbltareas->item(fila, HORA)->setBackground(QBrush(QColor(Qt::green)));
+        } else if (diasRestantes == 1 ) {
+            ui->tbltareas->item(fila, TAREA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, ASIGNATURA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, FECHA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, HORA)->setBackground(QBrush(QColor(Qt::red)));
+        } else if (diasRestantes == 0) {
+
+            ui->tbltareas->item(fila, TAREA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, ASIGNATURA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, FECHA)->setBackground(QBrush(QColor(Qt::red)));
+            ui->tbltareas->item(fila, HORA)->setBackground(QBrush(QColor(Qt::red)));
+        } else {
+            // Si no cumple ninguna condición, se puede restaurar el color predeterminado
+            ui->tbltareas->item(fila, TAREA)->setBackground(QBrush());
+            ui->tbltareas->item(fila, ASIGNATURA)->setBackground(QBrush());
+            ui->tbltareas->item(fila, FECHA)->setBackground(QBrush());
+            ui->tbltareas->item(fila, HORA)->setBackground(QBrush());
+        }
+    }
+}
+
+void Tasky::on_btnEliminar_clicked(){
+
+    int filaSeleccionada = ui->tbltareas->currentRow();
+
+    // Verificar si se seleccionó una fila válida
+    if (filaSeleccionada >= 0 && filaSeleccionada < ui->tbltareas->rowCount()) {
+        // Eliminar la tarea de la lista y de la tabla
+        Tarea *t = m_tareas.takeAt(filaSeleccionada);
+        delete t;
+
+        ui->tbltareas->removeRow(filaSeleccionada);
+        guardar();
+    } else {
+        QMessageBox::warning(this, "Eliminar tarea", "Selecciona una tarea para eliminar.");
+    }
+}
 
 
